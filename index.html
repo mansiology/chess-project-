@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Arena Chess: Gladiator War</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Static background shown during loading/menus -->
+<div id="static-bg">
+  <!-- Decorative torches -->
+  <div class="static-torch" style="position:absolute;left:8%;top:22%;">
+    <div class="static-torch-flame" style="animation-delay:0s;"></div>
+    <div class="static-torch-stem"></div>
+  </div>
+  <div class="static-torch" style="position:absolute;right:8%;top:22%;">
+    <div class="static-torch-flame" style="animation-delay:0.3s;"></div>
+    <div class="static-torch-stem"></div>
+  </div>
+  <div class="static-torch" style="position:absolute;left:4%;top:52%;">
+    <div class="static-torch-flame" style="animation-delay:0.15s;"></div>
+    <div class="static-torch-stem"></div>
+  </div>
+  <div class="static-torch" style="position:absolute;right:4%;top:52%;">
+    <div class="static-torch-flame" style="animation-delay:0.45s;"></div>
+    <div class="static-torch-stem"></div>
+  </div>
+  <!-- Chess board graphic in 3D perspective -->
+  <div class="static-board" id="static-board"></div>
+</div>
+
+<!-- THREE.JS CANVAS — only shown during actual gameplay -->
+<canvas id="game-canvas"></canvas>
+
+
+<!-- ══════════════════ INTRO ══════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="loading-arena">
+    <span class="loading-icon">⚔</span>
+    <div class="loading-text">Summoning the Gladiators…</div>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+    <div class="loading-hint">Tap to continue</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ MAIN MENU ══════════════════ -->
+<div id="screen-menu" class="screen">
+  <div class="menu-panel">
+    <div class="menu-header">
+      <div class="menu-eyebrow">ANNO DOMINI · MMXXIV</div>
+      <h1 class="menu-title">ARENA CHESS</h1>
+      <h2 class="menu-subtitle">GLADIATOR WAR</h2>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+    <nav class="menu-nav">
+      <div class="menu-section-label">— CHOOSE YOUR BATTLE —</div>
+      <button class="btn-roman primary" onclick="startPvP()">
+        ⚔ &nbsp;Player vs Player<span class="btn-icon">▶️</span>
+      </button>
+      <button class="btn-roman primary" onclick="startPvE()">
+        🤖 &nbsp;Player vs Bot<span class="btn-icon">▶️</span>
+      </button>
+      <div class="menu-divider"></div>
+      <div class="menu-section-label">— KNOWLEDGE & LORE —</div>
+      <button class="btn-roman" onclick="showHowToPlay()">
+        📜 &nbsp;How To Play<span class="btn-icon">▶️</span>
+      </button>
+      <button class="btn-roman" onclick="showAbout()">
+        🏛 &nbsp;About the Arena<span class="btn-icon">▶️</span>
+      </button>
+      <button class="btn-roman" onclick="showSettings()">
+        ⚙ &nbsp;Settings<span class="btn-icon">▶️</span>
+      </button>
+    </nav>
+    <div class="menu-divider"></div>
+    <div class="menu-ornament" style="font-size:0.6rem;opacity:0.4;letter-spacing:0.3em;">
+      FORGED IN BRONZE · TESTED IN BLOOD
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ HOW TO PLAY ══════════════════ -->
+<div id="screen-howto" class="screen">
+  <div class="modal-panel">
+    <h2 class="modal-title">⚔ HOW TO PLAY</h2>
+    <p class="modal-subtitle">Learn the way of the gladiator strategist</p>
+    <div class="modal-divider"></div>
+    <div id="tut-content">
+      <div class="loading-text" style="text-align:center;padding:2rem;font-size:0.8rem;">Loading tutorial…</div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-text" style="margin-bottom:1.5rem;">
+      <strong>Chess basics:</strong> Each player controls 16 pieces.
+      White moves first. The goal is to <strong>checkmate</strong> — trap the enemy king with no escape.
+      <br><br>
+      <strong>Special moves:</strong><br>
+      • <strong>Castling</strong> — King and rook swap if neither has moved and the path is clear.<br>
+      • <strong>En Passant</strong> — A pawn can capture a pawn that just moved two squares past it.<br>
+      • <strong>Promotion</strong> — A pawn reaching the far rank becomes a queen.<br><br>
+      <strong>Assist Mode</strong> shows green and yellow arrows suggesting your best moves.
+    </div>
+    <button class="btn-roman modal-close" onclick="showMenu()">← Return to the Arena</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════ ABOUT ══════════════════ -->
+<div id="screen-about" class="screen">
+  <div class="modal-panel">
+    <h2 class="modal-title">🏛 THE ARENA</h2>
+    <p class="modal-subtitle">Blood, bronze, and strategy</p>
+    <div class="modal-divider"></div>
+    <div class="about-section">
+      <h3>The Concept</h3>
+      <p class="modal-text">
+        Arena Chess: Gladiator War reimagines chess as a
+        <strong>cinematic gladiatorial spectacle</strong> inside a grand Roman colosseum.
+        Every piece is a bronze warrior. Every move is a tactical command.
+        Every capture is a duel.
+      </p>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="about-section">
+      <h3>The Pieces</h3>
+      <p class="modal-text">
+        ♔ <strong>King</strong> — The Roman Emperor. His fall ends the war.<br>
+        ♕ <strong>Queen</strong> — The Champion Gladiator. Most powerful on the sand.<br>
+        ♖ <strong>Rook</strong> — The Roman Fortress Tower. Controls the flanks.<br>
+        ♗ <strong>Bishop</strong> — The Roman Strategist. Commands the diagonals.<br>
+        ♘ <strong>Knight</strong> — The Cavalry Warrior. Leaps over the battlefield.<br>
+        ♙ <strong>Pawn</strong> — The Roman Foot Soldier. The heart of any army.
+      </p>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="about-section">
+      <h3>The 3D Environment</h3>
+      <p class="modal-text">
+        Rendered in real-time with <strong>Three.js</strong>.
+        Dynamic torch lighting, camera shake, particle sparks, and cinematic capture
+        animations make every duel feel alive. The colosseum walls, sand floor, and
+        crowd silhouettes immerse you in ancient Rome.
+      </p>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="about-section">
+      <h3>The AI</h3>
+      <p class="modal-text">
+        The bot uses <strong>Negamax with Alpha-Beta pruning</strong> —
+        the same algorithm family used in professional chess engines. It evaluates
+        material balance and piece positioning to choose intelligent moves quickly.
+      </p>
+    </div>
+    <div class="modal-divider"></div>
+    <button class="btn-roman modal-close" onclick="showMenu()">← Return to the Arena</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════ SETTINGS ══════════════════ -->
+<div id="screen-settings" class="screen">
+  <div class="modal-panel">
+    <h2 class="modal-title">⚙ SETTINGS</h2>
+    <p class="modal-subtitle">Configure your battle conditions</p>
+    <div class="modal-divider"></div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">🔊 Sound Effects</div>
+        <div class="setting-desc">Metal clash, crowd roar, arena horn</div>
+      </div>
+      <button class="btn-roman-sm" onclick="toggleSound()" id="settings-sound-btn">ON</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">💡 Assist Mode</div>
+        <div class="setting-desc">Show move suggestions as arrows</div>
+      </div>
+      <button class="btn-roman-sm" onclick="toggleAssistSettings()" id="settings-assist-btn">OFF</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">🤖 Bot Difficulty</div>
+        <div class="setting-desc">Affects AI search depth</div>
+      </div>
+      <button class="btn-roman-sm" onclick="cycleDifficulty()" id="settings-diff-btn">MEDIUM</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">📷 Camera</div>
+        <div class="setting-desc">Cycle camera angle in-game</div>
+      </div>
+      <button class="btn-roman-sm" onclick="cycleCam()">CYCLE</button>
+    </div>
+    <div class="modal-divider"></div>
+    <button class="btn-roman modal-close" onclick="showMenu()">← Return to the Arena</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════ GAME SCREEN ══════════════════ -->
+<div id="screen-game" class="screen">
+
+  <!-- Top HUD bar -->
+  <div class="hud-top">
+    <div class="hud-segment">
+      <div>
+        <div class="hud-label">TURN</div>
+        <div class="hud-value" id="hud-turn" data-color="white">WHITE</div>
+      </div>
+    </div>
+    <div class="hud-segment">
+      <div>
+        <div class="hud-label">MODE</div>
+        <div class="hud-value" id="hud-mode">⚔ PvP</div>
+      </div>
+    </div>
+    <!-- Center: flash alert + bot thinking indicator -->
+    <div class="hud-center">
+      <span id="hud-alert"></span>
+      <div class="hud-bot-indicator" id="hud-bot">
+        <div class="bot-dots"><span></span><span></span><span></span></div>
+        <span class="bot-text">BOT THINKING…</span>
+      </div>
+    </div>
+    <!-- Back to menu -->
+    <div class="hud-segment" style="margin-left:auto;">
+      <button class="hud-btn" onclick="backToMenu()"
+        style="width:auto;padding:0.4rem 0.8rem;border:none;background:transparent;font-size:0.65rem;color:var(--sand);">
+        ← MENU
+      </button>
+    </div>
+  </div>
+
+  <!-- Right side panel -->
+  <div class="hud-side">
+    <button class="hud-btn" onclick="restartGame()">🔄 RESTART</button>
+    <button class="hud-btn" id="btn-assist" onclick="toggleAssist()">💡 ASSIST</button>
+    <button class="hud-btn" id="btn-cam"    onclick="cycleCam()">📷 WHITE</button>
+    <button class="hud-btn active" id="btn-sound" onclick="toggleSound()">🔊 SOUND</button>
+  </div>
+
+  <!-- Game over overlay -->
+  <div class="game-over-banner" id="game-over-banner">
+    <div class="game-over-card">
+      <div class="go-title" id="go-title">⚔ GAME OVER ⚔</div>
+      <div class="go-sub"   id="go-sub">The battle has ended.</div>
+      <div class="go-actions">
+        <button class="btn-roman primary" onclick="restartGame()">⚔ REMATCH</button>
+        <button class="btn-roman"         onclick="backToMenu()">🏛 MENU</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end screen-game -->
+
+
+<!-- ══════════════════ SCRIPTS ══════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="chessLogic.js"></script>
+<script src="botAI.js"></script>
+<script src="threeScene.js"></script>
+<script src="main.js"></script>
+
+<script>
+  // Build the static decorative chess board (8x8 squares)
+  const board = document.getElementById('static-board');
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const sq = document.createElement('div');
+      sq.className = 'static-board-sq ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+      board.appendChild(sq);
+    }
+  }
+</script>
+
+</body>
+</html>
